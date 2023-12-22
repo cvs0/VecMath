@@ -58,6 +58,10 @@ public:
     Vec3<T> abs() const {
         return VecMath<T>::abs(*this);
     }
+
+    Vec3<T> multiply(const Mat4<T>& matrix, const Vec3<T>& vector) {
+        return VecMath::multiply(matrix, vector);
+    }
 };
 
 template <typename T>
@@ -139,6 +143,13 @@ inline Vec3<T> VecMath<T>::abs(const Vec3<T>& v) {
 }
 
 template <typename T>
+inline Vec3<T> VecMath<T>::multiply(const Mat4<T>& matrix, const Vec3<T>& vector) {
+    Vec4<T> result = multiply(matrix, Vec4<T>(vector.x, vector.y, vector.z, 1.0f));
+    return Vec3<T>(result.x, result.y, result.z);
+}
+
+
+template <typename T>
 class Vec4 {
 public:
     T x, y, z, w;
@@ -188,6 +199,10 @@ public:
 
     Vec4<T> abs() const {
         return VecMath<T>::abs(*this);
+    }
+
+    Vec4<T> multiply(const Mat4<T>& matrix, const Vec4<T>& vector) {
+        return VecMath<T>::multiply(matrix, vector);
     }
 };
 
@@ -264,6 +279,21 @@ inline Vec4<T> VecMath<T>::abs(const Vec4<T>& v) {
 }
 
 template <typename T>
+inline Vec4<T> VecMath<T>::multiply(const Mat4<T>& matrix, const Vec4<T>& vector) {
+    Vec4<T> result;
+
+    for (int i = 0; i < 4; ++i) {
+        result[i] = matrix.m[i][0] * vector.x +
+            matrix.m[i][1] * vector.y +
+            matrix.m[i][2] * vector.z +
+            matrix.m[i][3] * vector.w;
+    }
+
+    return result;
+}
+
+
+template <typename T>
 class Mat4 {
 public:
     T m[4][4];
@@ -288,10 +318,25 @@ public:
         m[3][0] = a41; m[3][1] = a42; m[3][2] = a43; m[3][3] = a44;
     }
 
-    static Mat4<T> VecMath<T>::transpose(const Mat4<T>&matrix);
-    static Mat4<T> VecMath<T>::identity();
-    static Mat4<T> VecMath<T>::scale(const Mat4<T>& matrix, T scaleX, T scaleY, T scaleZ);
-    static Mat4<T> VecMath<T>::translate(const Mat4<T>& matrix, T translateX, T translateY, T translateZ);
+    static Mat4<T> transpose(const Mat4<T>& matrix) {
+        return VecMath<T>::transpose(matrix);
+    }
+
+    static Mat4<T> identity() {
+        return VecMath<T>::identity();
+    }
+
+    static Mat4<T> scale(const Mat4<T>& matrix, T scaleX, T scaleY, T scaleZ) {
+        return VecMath<T>::scale(matrix, scaleX, scaleY, scaleZ);
+    }
+
+    static Mat4<T> translate(const Mat4<T>& matrix, T translateX, T translateY, T translateZ) {
+        return VecMath<T>::translate(matrix, translateX, translateY, translateZ);
+    }
+
+    static Mat4<T> multiply(const Mat4<T>& a, const Mat4<T>& b) {
+        return VecMath<T>::multiply(a, b);
+    }
 
     friend class VecMath<T>;
 };
@@ -333,6 +378,22 @@ inline Mat4<T> VecMath<T>::translate(const Mat4<T>& matrix, T translateX, T tran
     result.m[3][0] += translateX;
     result.m[3][1] += translateY;
     result.m[3][2] += translateZ;
+    return result;
+}
+
+template <typename T>
+inline Mat4<T> VecMath<T>::multiply(const Mat4<T>& a, const Mat4<T>& b) {
+    Mat4<T> result;
+
+    for (int i = 0; i < 4; ++i) {
+        for (int j = 0; j < 4; ++j) {
+            result.m[i][j] = 0;
+            for (int k = 0; k < 4; ++k) {
+                result.m[i][j] += a.m[i][k] * b.m[k][j];
+            }
+        }
+    }
+
     return result;
 }
 
