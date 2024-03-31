@@ -1,6 +1,8 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\VecMath"
   ],
+  "SelectedNode": "\\VecMath\\VecMath_impl.h",
   "PreviewInSolutionExplorer": false
 }
